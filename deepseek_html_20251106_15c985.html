@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu du Dino Chrome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .secret-section {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .dino-container {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            border: none;
+            background: #f7f7f7;
+        }
+
+        .dino-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .fullscreen-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .fullscreen-controls button {
+            padding: 12px 20px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .fullscreen-controls button:hover {
+            background: rgba(255, 0, 0, 1);
+        }
+
+        .key-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 10000;
+            display: none;
+        }
+
+        .key-indicator.show {
+            display: block;
+            animation: fadeOut 2s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .instructions {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 10000;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="secret-section">
+        <div class="instructions">
+            🦖 ESPACE ou FLÈCHE HAUT pour sauter • ESC pour quitter
+        </div>
+        
+        <div class="dino-container" id="dinoContainer">
+            <iframe src="https://chromedino.com/" 
+                    class="dino-iframe"
+                    id="dinoIframe"
+                    allow="autoplay; fullscreen"
+                    title="Jeu du Dino Chrome">
+            </iframe>
+        </div>
+
+        <div class="fullscreen-controls">
+            <button onclick="redirectToCabanga()">✕ QUITTER</button>
+        </div>
+        
+        <div class="key-indicator" id="keyIndicator"></div>
+    </div>
+
+    <script>
+        // Focus automatique sur l'iframe
+        document.addEventListener('DOMContentLoaded', function() {
+            const iframe = document.getElementById('dinoIframe');
+            setTimeout(() => {
+                iframe.focus();
+                showKeyIndicator('Jeu prêt - ESPACE pour commencer');
+            }, 1000);
+        });
+
+        function redirectToCabanga() {
+            // Ouvrir app.cabanga.be directement dans le même onglet
+            window.location.href = 'https://app.cabanga.be';
+        }
+
+        function showKeyIndicator(message) {
+            const indicator = document.getElementById('keyIndicator');
+            indicator.textContent = message;
+            indicator.classList.add('show');
+            
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+
+        // Gestion des touches pour le jeu
+        document.addEventListener('keydown', (e) => {
+            const iframe = document.getElementById('dinoIframe');
+            
+            // Touches de jeu
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                
+                // Focus sur l'iframe
+                iframe.focus();
+                
+                // Afficher l'indicateur de touche
+                const keyName = e.code === 'Space' ? 'ESPACE' : 'FLÈCHE HAUT';
+                showKeyIndicator(`Touche pressée : ${keyName}`);
+            }
+            
+            // Échap pour quitter directement
+            if (e.code === 'Escape') {
+                redirectToCabanga();
+            }
+        });
+
+        // Gestion du clic sur l'iframe pour le focus
+        document.getElementById('dinoIframe').addEventListener('load', function() {
+            this.contentWindow.addEventListener('click', function() {
+                this.focus();
+            });
+        });
+
+        // Focus automatique périodique
+        setInterval(() => {
+            document.getElementById('dinoIframe').focus();
+        }, 5000);
+
+        // Empêcher le menu contextuel
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        // Empêcher les touches F5, Ctrl+R, etc.
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F5' || (e.ctrlKey && e.key === 'r') || (e.ctrlKey && e.key === 'R')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
